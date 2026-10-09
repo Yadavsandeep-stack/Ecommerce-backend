@@ -1,5 +1,6 @@
 import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -28,15 +29,18 @@ const userSchema = new mongoose.Schema({
         enum: ["user", "admin"],
         default: "user",
     },
+    isRefreshtoken: {
+        type: String,
+        default: null,
+    },
     phone: { type: String, trim: true },
     isVerified: { type: Boolean, default: false },
 }, { timestamps: true })
 
 
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next()
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return
     this.password = await bcrypt.hash(this.password, 10)
-    next()
 })
 
 
